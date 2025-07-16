@@ -156,13 +156,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun }) => {
         </div>
 
         {/* Code area */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative overflow-hidden">
           <textarea
             ref={textareaRef}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full h-full p-3 bg-transparent text-foreground font-mono text-sm leading-6 resize-none outline-none border-none"
+            className="w-full h-full p-3 bg-transparent text-foreground font-mono text-sm leading-6 resize-none outline-none border-none overflow-y-auto"
             placeholder="Write your HTML, CSS, and JavaScript here..."
             spellCheck={false}
             style={{
