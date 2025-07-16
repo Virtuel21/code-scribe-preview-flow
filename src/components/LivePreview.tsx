@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Monitor, RefreshCw, Maximize2 } from 'lucide-react';
+import { Monitor, RefreshCw, Maximize2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface LivePreviewProps {
@@ -173,6 +173,10 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
     }
   };
 
+  const copyCode = () => {
+    navigator.clipboard.writeText(code);
+  };
+
   return (
     <div className="h-full flex flex-col bg-preview-bg">
       {/* Header */}
@@ -192,6 +196,14 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
             className="h-7 px-2 text-gray-600 hover:text-gray-900"
           >
             <RefreshCw className="w-3 h-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={copyCode}
+            className="h-7 px-2 text-gray-600 hover:text-gray-900"
+          >
+            <Copy className="w-3 h-3" />
           </Button>
           <Button
             variant="ghost"
