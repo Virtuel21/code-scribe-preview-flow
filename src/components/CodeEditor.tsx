@@ -142,7 +142,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun }) => {
       </div>
 
       {/* Editor */}
-      <div className="flex-1 flex relative">
+      <div className="flex-1 flex relative overflow-auto">
         {/* Line numbers */}
         <div className="w-12 bg-editor-gutter border-r border-editor-border flex flex-col text-right py-3 select-none">
           {lineNumbers.map((lineNum) => (
@@ -156,7 +156,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun }) => {
         </div>
 
         {/* Code area */}
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative">
           <textarea
             ref={textareaRef}
             value={value}
