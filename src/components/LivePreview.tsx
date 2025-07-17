@@ -138,7 +138,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
         position: relative;
       }
       body::after {
-        content: 'Click on any text to edit inline';
+        content: 'Click text to edit, Alt+Click element to delete';
         position: fixed;
         top: 10px;
         right: 10px;
@@ -162,8 +162,11 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
     const handleSelect = (e: MouseEvent) => {
       if (!e.altKey) return;
       if (!(e.target instanceof HTMLElement)) return;
-      const target = e.target as HTMLElement;
-      if (target.getAttribute('data-editable') === 'true') return;
+      let target = e.target as HTMLElement;
+      if (target.getAttribute('data-editable') === 'true') {
+        target = target.parentElement as HTMLElement;
+        if (!target) return;
+      }
       e.preventDefault();
       e.stopPropagation();
 
