@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Monitor, RefreshCw, Maximize2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -11,7 +11,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const updatePreview = () => {
+  const updatePreview = useCallback(() => {
     if (!iframeRef.current) return;
     
     setIsLoading(true);
@@ -30,7 +30,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
       enableInlineEditing(doc);
       setIsLoading(false);
     }, 100);
-  };
+  }, [code]);
 
   const enableInlineEditing = (doc: Document) => {
     // Find all text nodes and make them editable
@@ -60,7 +60,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
 
     const textNodes: Text[] = [];
     let node;
-    while (node = walker.nextNode()) {
+    while ((node = walker.nextNode())) {
       textNodes.push(node as Text);
     }
 
@@ -159,7 +159,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
 
   useEffect(() => {
     updatePreview();
-  }, [code]);
+  }, [updatePreview]);
 
   const refreshPreview = () => {
     updatePreview();
@@ -230,3 +230,4 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
 };
 
 export default LivePreview;
+

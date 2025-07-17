@@ -81,18 +81,19 @@ const SplitLayout: React.FC = () => {
   }, []);
 
   const getLayoutClasses = () => {
+    let desktop = "md:grid-cols-2";
     if (leftCollapsed && rightCollapsed) {
-      return "grid-cols-[40px_1fr_40px]";
+      desktop = "md:grid-cols-[40px_1fr_40px]";
     } else if (leftCollapsed) {
-      return "grid-cols-[40px_1fr]";
+      desktop = "md:grid-cols-[40px_1fr]";
     } else if (rightCollapsed) {
-      return "grid-cols-[1fr_40px]";
+      desktop = "md:grid-cols-[1fr_40px]";
     }
-    return "grid-cols-2";
+    return `grid-cols-1 ${desktop}`;
   };
 
   return (
-    <div className="h-screen bg-background text-foreground overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-auto">
       <div className={`h-full grid ${getLayoutClasses()} transition-all duration-300`}>
         {/* Left Panel - Code Editor */}
         {leftCollapsed ? (
