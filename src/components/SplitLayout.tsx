@@ -1,8 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import CodeEditor from './CodeEditor';
 import LivePreview from './LivePreview';
-import { PanelLeftClose, PanelRightClose } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from '@/components/ui/resizable';
 
 const defaultCode = `<!DOCTYPE html>
 <html lang="en">
@@ -62,8 +65,6 @@ const defaultCode = `<!DOCTYPE html>
 
 const SplitLayout: React.FC = () => {
   const [code, setCode] = useState(defaultCode);
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [rightCollapsed, setRightCollapsed] = useState(false);
 
   const handleCodeChange = useCallback((newCode: string) => {
     setCode(newCode);
@@ -80,80 +81,17 @@ const SplitLayout: React.FC = () => {
     setCode(prev => prev);
   }, []);
 
-  const getLayoutClasses = () => {
-    let desktop = "md:grid-cols-2";
-    if (leftCollapsed && rightCollapsed) {
-      desktop = "md:grid-cols-[40px_1fr_40px]";
-    } else if (leftCollapsed) {
-      desktop = "md:grid-cols-[40px_1fr]";
-    } else if (rightCollapsed) {
-      desktop = "md:grid-cols-[1fr_40px]";
-    }
-    return `grid-cols-1 ${desktop}`;
-  };
-
   return (
     <div className="h-screen bg-background text-foreground overflow-hidden">
-      <div className={`h-full grid ${getLayoutClasses()} transition-all duration-300`}>
-        {/* Left Panel - Code Editor */}
-        {leftCollapsed ? (
-          <div className="bg-editor-bg border-r border-editor-border flex items-center justify-center h-full">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLeftCollapsed(false)}
-              className="rotate-180 text-text-muted hover:text-foreground"
-            >
-              <PanelLeftClose className="w-4 h-4" />
-            </Button>
-          </div>
-        ) : (
-          <div className="relative h-full">
-            <CodeEditor
-              value={code}
-              onChange={handleCodeChange}
-              onRun={handleRun}
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLeftCollapsed(true)}
-              className="absolute top-3 right-2 text-text-muted hover:text-foreground z-10"
-            >
-              <PanelLeftClose className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-
-        {/* Right Panel - Live Preview */}
-        {rightCollapsed ? (
-          <div className="bg-preview-bg border-l border-gray-200 flex items-center justify-center h-full">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setRightCollapsed(false)}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              <PanelRightClose className="w-4 h-4" />
-            </Button>
-          </div>
-        ) : (
-          <div className="relative h-full">
-            <LivePreview
-              code={code}
-              onTextEdit={handleTextEdit}
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setRightCollapsed(true)}
-              className="absolute top-3 left-2 text-gray-600 hover:text-gray-900 z-10"
-            >
-              <PanelRightClose className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-      </div>
+      <ResizablePanelGroup direction="horizontal" className="h-full">
+        <ResizablePanel defaultSize={50} minSize={20} className="overflow-y-auto">
+          <CodeEditor value={code} onChange={handleCodeChange} onRun={handleRun} />
+        </ResizablePanel>
+        <ResizableHandle withHandle className="bg-border" />
+        <ResizablePanel minSize={20} className="overflow-y-auto">
+          <LivePreview code={code} onTextEdit={handleTextEdit} />
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
