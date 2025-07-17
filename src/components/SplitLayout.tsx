@@ -71,10 +71,13 @@ const SplitLayout: React.FC = () => {
   }, []);
 
   const handleTextEdit = useCallback((originalText: string, newText: string) => {
-    // Find and replace the original text in the code
     const updatedCode = code.replace(originalText, newText);
     setCode(updatedCode);
   }, [code]);
+
+  const handleElementDelete = useCallback((html: string) => {
+    setCode(current => current.replace(html, ''));
+  }, []);
 
   const handleRun = useCallback(() => {
     // Force refresh by updating code
@@ -89,7 +92,7 @@ const SplitLayout: React.FC = () => {
         </ResizablePanel>
         <ResizableHandle withHandle className="bg-border" />
         <ResizablePanel minSize={20} className="overflow-y-auto">
-          <LivePreview code={code} onTextEdit={handleTextEdit} />
+          <LivePreview code={code} onTextEdit={handleTextEdit} onElementDelete={handleElementDelete} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Copy, Play, RotateCcw } from 'lucide-react';
+import Editor from 'react-simple-code-editor';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/themes/prism.css';
 import { Button } from '@/components/ui/button';
 
 interface CodeEditorProps {
@@ -157,14 +163,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun }) => {
 
         {/* Code area */}
         <div className="flex-1 relative">
-          <textarea
-            ref={textareaRef}
+          <Editor
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onValueChange={onChange}
+            highlight={(code) => Prism.highlight(code, Prism.languages.html, 'html')}
+            padding={12}
+            textareaRef={textareaRef}
             onKeyDown={handleKeyDown}
-            className="w-full h-full p-3 bg-transparent text-foreground font-mono text-sm leading-6 resize-none outline-none border-none"
-            placeholder="Write your HTML, CSS, and JavaScript here..."
-            spellCheck={false}
+            textareaClassName="w-full h-full bg-transparent outline-none border-none font-mono text-sm leading-6 text-foreground"
             style={{
               tabSize: 2,
               fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace",
