@@ -93,11 +93,11 @@ const SplitLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-auto">
+    <div className="h-screen bg-background text-foreground overflow-hidden">
       <div className={`h-full grid ${getLayoutClasses()} transition-all duration-300`}>
         {/* Left Panel - Code Editor */}
         {leftCollapsed ? (
-          <div className="bg-editor-bg border-r border-editor-border flex items-center justify-center">
+          <div className="bg-editor-bg border-r border-editor-border flex items-center justify-center h-full">
             <Button
               variant="ghost"
               size="sm"
@@ -108,7 +108,7 @@ const SplitLayout: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <div className="relative">
+          <div className="relative h-full">
             <CodeEditor
               value={code}
               onChange={handleCodeChange}
@@ -127,7 +127,7 @@ const SplitLayout: React.FC = () => {
 
         {/* Right Panel - Live Preview */}
         {rightCollapsed ? (
-          <div className="bg-preview-bg border-l border-gray-200 flex items-center justify-center">
+          <div className="bg-preview-bg border-l border-gray-200 flex items-center justify-center h-full">
             <Button
               variant="ghost"
               size="sm"
@@ -138,7 +138,7 @@ const SplitLayout: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <div className="relative">
+          <div className="relative h-full">
             <LivePreview
               code={code}
               onTextEdit={handleTextEdit}
