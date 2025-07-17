@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Monitor, RefreshCw, Maximize2, Copy } from 'lucide-react';
+import { Monitor, RefreshCw, Maximize2, Copy, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface LivePreviewProps {
@@ -11,6 +11,8 @@ interface LivePreviewProps {
 const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDelete }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteMode, setDeleteMode] = useState(false);
+  const deleteModeRef = useRef(deleteMode);
   const selectedElRef = useRef<HTMLElement | null>(null);
   const deleteBtnRef = useRef<HTMLButtonElement | null>(null);
 
@@ -138,7 +140,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
         position: relative;
       }
       body::after {
-        content: 'Click text to edit, Alt+Click element to delete';
+        content: 'Click text to edit. Enable delete mode to remove elements';
         position: fixed;
         top: 10px;
         right: 10px;
@@ -160,7 +162,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
     doc.head.appendChild(style);
 
     const handleSelect = (e: MouseEvent) => {
-      if (!e.altKey) return;
+      if (!deleteModeRef.current) return;
       if (!(e.target instanceof HTMLElement)) return;
       let target = e.target as HTMLElement;
       if (target.getAttribute('data-editable') === 'true') {
@@ -180,12 +182,13 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
       let btn = deleteBtnRef.current;
       if (!btn) {
         btn = doc.createElement('button');
-        btn.textContent = 'Delete';
+        btn.textContent = '🗑️';
         btn.style.position = 'absolute';
         btn.style.zIndex = '10000';
         btn.style.background = '#ef4444';
         btn.style.color = '#fff';
         btn.style.border = 'none';
+        btn.style.borderRadius = '4px';
         btn.style.padding = '2px 6px';
         btn.style.fontSize = '12px';
         btn.style.cursor = 'pointer';
@@ -213,6 +216,24 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
   useEffect(() => {
     updatePreview();
   }, [updatePreview]);
+
+  useEffect(() => {
+    deleteModeRef.current = deleteMode;
+    const doc = iframeRef.current?.contentDocument;
+    if (doc) {
+      doc.body.style.cursor = deleteMode ? 'pointer' : 'auto';
+    }
+    if (!deleteMode && doc) {
+      if (deleteBtnRef.current) {
+        deleteBtnRef.current.remove();
+        deleteBtnRef.current = null;
+      }
+      if (selectedElRef.current) {
+        selectedElRef.current.style.outline = '';
+        selectedElRef.current = null;
+      }
+    }
+  }, [deleteMode]);
 
   const refreshPreview = () => {
     updatePreview();
@@ -257,6 +278,14 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
             className="h-7 px-2 text-gray-600 hover:text-gray-900"
           >
             <Copy className="w-3 h-3" />
+          </Button>
+          <Button
+            variant={deleteMode ? 'destructive' : 'ghost'}
+            size="sm"
+            onClick={() => setDeleteMode((v) => !v)}
+            className="h-7 px-2 text-gray-600 hover:text-gray-900"
+          >
+            <Trash2 className="w-3 h-3" />
           </Button>
           <Button
             variant="ghost"
