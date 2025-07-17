@@ -162,7 +162,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun }) => {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full h-full p-3 bg-transparent text-foreground font-mono text-sm leading-6 resize-none outline-none border-none overflow-y-auto"
+            className="w-full h-full p-3 bg-transparent text-foreground font-mono text-sm leading-6 resize-none outline-none border-none"
             placeholder="Write your HTML, CSS, and JavaScript here..."
             spellCheck={false}
             style={{
