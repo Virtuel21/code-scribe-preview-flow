@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/button';
 interface LivePreviewProps {
   code: string;
   onTextEdit: (originalText: string, newText: string) => void;
+  onElementDelete: (elementHtml: string) => void;
 }
 
-const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
+const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDelete }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const selectedElRef = useRef<HTMLElement | null>(null);
+  const deleteBtnRef = useRef<HTMLButtonElement | null>(null);
 
   const updatePreview = useCallback(() => {
     if (!iframeRef.current) return;
@@ -155,6 +158,53 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit }) => {
       }
     `;
     doc.head.appendChild(style);
+
+    const handleSelect = (e: MouseEvent) => {
+      if (!e.altKey) return;
+      if (!(e.target instanceof HTMLElement)) return;
+      const target = e.target as HTMLElement;
+      if (target.getAttribute('data-editable') === 'true') return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (selectedElRef.current) {
+        selectedElRef.current.style.outline = '';
+      }
+
+      selectedElRef.current = target;
+      target.style.outline = '2px solid rgba(239,68,68,0.8)';
+
+      let btn = deleteBtnRef.current;
+      if (!btn) {
+        btn = doc.createElement('button');
+        btn.textContent = 'Delete';
+        btn.style.position = 'absolute';
+        btn.style.zIndex = '10000';
+        btn.style.background = '#ef4444';
+        btn.style.color = '#fff';
+        btn.style.border = 'none';
+        btn.style.padding = '2px 6px';
+        btn.style.fontSize = '12px';
+        btn.style.cursor = 'pointer';
+        deleteBtnRef.current = btn;
+        doc.body.appendChild(btn);
+      }
+
+      const rect = target.getBoundingClientRect();
+      btn.style.top = `${rect.top + doc.documentElement.scrollTop}px`;
+      btn.style.left = `${rect.right + doc.documentElement.scrollLeft - btn.offsetWidth}px`;
+
+      btn.onclick = () => {
+        const html = target.outerHTML;
+        target.remove();
+        btn?.remove();
+        deleteBtnRef.current = null;
+        selectedElRef.current = null;
+        onElementDelete(html);
+      };
+    };
+
+    doc.addEventListener('click', handleSelect);
   };
 
   useEffect(() => {
