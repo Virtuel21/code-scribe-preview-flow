@@ -140,7 +140,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
         position: relative;
       }
       body::after {
-        content: 'Click text to edit. Enable delete mode to remove elements';
+        content: 'Click text to edit. Enable edit mode to remove divs';
         position: fixed;
         top: 10px;
         right: 10px;
@@ -161,18 +161,51 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
     `;
     doc.head.appendChild(style);
 
+    const clearHighlight = (el: HTMLElement | null) => {
+      if (!el) return;
+      if (selectedElRef.current === el) return;
+      el.style.outline = '';
+    };
+
+    const handleHover = (e: MouseEvent) => {
+      if (!deleteModeRef.current) return;
+      if (!(e.target instanceof HTMLElement)) return;
+      let target = e.target as HTMLElement;
+      if (target.getAttribute('data-editable') === 'true') {
+        target = target.parentElement as HTMLElement;
+      }
+      if (target.tagName !== 'DIV') return;
+      if (selectedElRef.current && selectedElRef.current !== target) {
+        clearHighlight(selectedElRef.current);
+      }
+      target.style.outline = '1px dashed rgba(59,130,246,0.7)';
+    };
+
+    const handleOut = (e: MouseEvent) => {
+      if (!(e.target instanceof HTMLElement)) return;
+      let target = e.target as HTMLElement;
+      if (target.getAttribute('data-editable') === 'true') {
+        target = target.parentElement as HTMLElement;
+      }
+      if (target.tagName !== 'DIV') return;
+      if (target !== selectedElRef.current) {
+        target.style.outline = '';
+      }
+    };
+
     const handleSelect = (e: MouseEvent) => {
       if (!deleteModeRef.current) return;
       if (!(e.target instanceof HTMLElement)) return;
       let target = e.target as HTMLElement;
       if (target.getAttribute('data-editable') === 'true') {
         target = target.parentElement as HTMLElement;
-        if (!target) return;
       }
+      if (target.tagName !== 'DIV') return;
+
       e.preventDefault();
       e.stopPropagation();
 
-      if (selectedElRef.current) {
+      if (selectedElRef.current && selectedElRef.current !== target) {
         selectedElRef.current.style.outline = '';
       }
 
@@ -210,6 +243,8 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
       };
     };
 
+    doc.addEventListener('mouseover', handleHover);
+    doc.addEventListener('mouseout', handleOut);
     doc.addEventListener('click', handleSelect);
   };
 
