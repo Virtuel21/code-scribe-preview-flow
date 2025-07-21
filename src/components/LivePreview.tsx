@@ -9,7 +9,7 @@ interface LivePreviewProps {
   onElementSelect?: (lineNumber: number) => void;
 }
 
-const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDelete }) => {
+const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDelete, onElementSelect }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
