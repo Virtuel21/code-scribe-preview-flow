@@ -16,13 +16,23 @@ interface CodeEditorProps {
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun, highlightLine }) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [lineNumbers, setLineNumbers] = useState<number[]>([1]);
 
   useEffect(() => {
     const lines = value.split('\n').length;
     setLineNumbers(Array.from({ length: lines }, (_, i) => i + 1));
   }, [value]);
+
+  useEffect(() => {
+    if (wrapperRef.current) {
+      const textarea = wrapperRef.current.querySelector('textarea');
+      if (textarea) {
+        textareaRef.current = textarea as HTMLTextAreaElement;
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!highlightLine || !textareaRef.current) return;
@@ -180,13 +190,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun, highlig
         </div>
 
         {/* Code area */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative" ref={wrapperRef}>
           <Editor
             value={value}
             onValueChange={onChange}
             highlight={(code) => Prism.highlight(code, Prism.languages.html, 'html')}
             padding={12}
-            textareaRef={textareaRef}
             onKeyDown={handleKeyDown}
             textareaClassName="w-full h-full bg-transparent outline-none border-none font-mono text-sm leading-6 text-foreground"
             style={{
