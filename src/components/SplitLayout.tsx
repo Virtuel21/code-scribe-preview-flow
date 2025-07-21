@@ -81,7 +81,9 @@ const SplitLayout: React.FC = () => {
   }, []);
 
   const handleElementSelect = useCallback((line: number) => {
-    setHighlightLine(line);
+    // Reset first to allow re-selecting the same line
+    setHighlightLine(undefined);
+    setTimeout(() => setHighlightLine(line), 0);
   }, []);
 
   const handleRun = useCallback(() => {

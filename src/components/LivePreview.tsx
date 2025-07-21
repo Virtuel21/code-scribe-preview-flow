@@ -233,6 +233,12 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
 
 
     const findLineNumber = (el: HTMLElement): number | null => {
+      const html = el.outerHTML.trim();
+      const index = code.indexOf(html);
+      if (index !== -1) {
+        return code.slice(0, index).split('\n').length;
+      }
+
       const tag = el.tagName.toLowerCase();
       const id = el.id ? `id="${el.id}"` : null;
       const className = el.getAttribute('class');
