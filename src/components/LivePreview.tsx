@@ -196,6 +196,16 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
 
 
     const findLineNumber = (el: HTMLElement): number | null => {
+      const cleanClone = el.cloneNode(true) as HTMLElement;
+      cleanClone.querySelectorAll('[data-editable="true"]').forEach((span) => {
+        span.replaceWith(span.textContent || '');
+      });
+      const html = cleanClone.outerHTML.trim();
+      const index = code.indexOf(html);
+      if (index !== -1) {
+        return code.slice(0, index).split('\n').length;
+      }
+
       const tag = el.tagName.toLowerCase();
       const id = el.id ? `id="${el.id}"` : null;
       const className = el.getAttribute('class');
