@@ -6,6 +6,7 @@ interface LivePreviewProps {
   code: string;
   onTextEdit: (originalText: string, newText: string) => void;
   onElementDelete: (elementHtml: string) => void;
+  onElementSelect?: (lineNumber: number) => void;
 }
 
 const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDelete }) => {
@@ -193,13 +194,45 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
       }
     };
 
+
+    const findLineNumber = (el: HTMLElement): number | null => {
+      const tag = el.tagName.toLowerCase();
+      const id = el.id ? `id="${el.id}"` : null;
+      const className = el.getAttribute('class');
+      const lines = code.split('\n');
+
+      const matchesLine = (line: string, str: string) => line.includes(str);
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (id && matchesLine(line, `<${tag}`) && matchesLine(line, id)) return i + 1;
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (className && matchesLine(line, `<${tag}`) && matchesLine(line, `class="${className}`)) return i + 1;
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes(`<${tag}`)) return i + 1;
+      }
+
+      return null;
+    };
+
     const handleSelect = (e: MouseEvent) => {
-      if (!deleteModeRef.current) return;
       if (!(e.target instanceof HTMLElement)) return;
       let target = e.target as HTMLElement;
       if (target.getAttribute('data-editable') === 'true') {
         target = target.parentElement as HTMLElement;
       }
+
+      const line = findLineNumber(target);
+      if (line && onElementSelect) {
+        onElementSelect(line);
+      }
+
+      if (!deleteModeRef.current) return;
       if (target.tagName !== 'DIV') return;
 
       e.preventDefault();
