@@ -39,6 +39,43 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
   }, [code]);
 
   const enableInlineEditing = (doc: Document) => {
+    // Create a toolbar fixed at the top of the preview for text formatting
+    const toolbar = doc.createElement('div');
+    toolbar.style.position = 'fixed';
+    toolbar.style.top = '0';
+    toolbar.style.left = '0';
+    toolbar.style.right = '0';
+    toolbar.style.display = 'flex';
+    toolbar.style.background = '#fff';
+    toolbar.style.borderBottom = '1px solid #ccc';
+    toolbar.style.padding = '4px';
+    toolbar.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+    toolbar.style.zIndex = '10000';
+    toolbar.style.fontFamily = 'system-ui, sans-serif';
+
+    const createBtn = (label: string, command: string) => {
+      const btn = doc.createElement('button');
+      btn.textContent = label;
+      btn.style.background = 'transparent';
+      btn.style.border = 'none';
+      btn.style.padding = '2px 4px';
+      btn.style.cursor = 'pointer';
+      btn.style.fontSize = '12px';
+      // Prevent losing selection when clicking toolbar buttons
+      btn.onmousedown = (e) => e.preventDefault();
+      btn.onclick = (e) => {
+        e.preventDefault();
+        doc.execCommand(command);
+      };
+      return btn;
+    };
+
+    toolbar.appendChild(createBtn('B', 'bold'));
+    toolbar.appendChild(createBtn('I', 'italic'));
+    toolbar.appendChild(createBtn('U', 'underline'));
+
+    doc.body.insertBefore(toolbar, doc.body.firstChild);
+    doc.body.style.paddingTop = '32px';
     // Find all text nodes and make them editable
     const walker = doc.createTreeWalker(
       doc.body,
@@ -194,8 +231,8 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
       }
     };
 
-
     const findLineNumber = (el: HTMLElement): number | null => {
+      // Nettoyer le clone pour la recherche dans le code
       const cleanClone = el.cloneNode(true) as HTMLElement;
       cleanClone.querySelectorAll('[data-editable="true"]').forEach((span) => {
         span.replaceWith(span.textContent || '');
@@ -390,4 +427,3 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
 };
 
 export default LivePreview;
-
