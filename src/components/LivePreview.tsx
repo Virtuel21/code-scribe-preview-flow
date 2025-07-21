@@ -39,14 +39,16 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
   }, [code]);
 
   const enableInlineEditing = (doc: Document) => {
-    // Create a floating toolbar for text formatting
+    // Create a toolbar fixed at the top of the preview for text formatting
     const toolbar = doc.createElement('div');
-    toolbar.style.position = 'absolute';
-    toolbar.style.display = 'none';
+    toolbar.style.position = 'fixed';
+    toolbar.style.top = '0';
+    toolbar.style.left = '0';
+    toolbar.style.right = '0';
+    toolbar.style.display = 'flex';
     toolbar.style.background = '#fff';
-    toolbar.style.border = '1px solid #ccc';
-    toolbar.style.borderRadius = '4px';
-    toolbar.style.padding = '2px';
+    toolbar.style.borderBottom = '1px solid #ccc';
+    toolbar.style.padding = '4px';
     toolbar.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
     toolbar.style.zIndex = '10000';
     toolbar.style.fontFamily = 'system-ui, sans-serif';
@@ -59,10 +61,11 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
       btn.style.padding = '2px 4px';
       btn.style.cursor = 'pointer';
       btn.style.fontSize = '12px';
+      // Prevent losing selection when clicking toolbar buttons
+      btn.onmousedown = (e) => e.preventDefault();
       btn.onclick = (e) => {
         e.preventDefault();
         doc.execCommand(command);
-        hideToolbar();
       };
       return btn;
     };
@@ -71,17 +74,8 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
     toolbar.appendChild(createBtn('I', 'italic'));
     toolbar.appendChild(createBtn('U', 'underline'));
 
-    const showToolbar = (rect: DOMRect) => {
-      toolbar.style.left = `${rect.left + doc.documentElement.scrollLeft}px`;
-      toolbar.style.top = `${rect.top + doc.documentElement.scrollTop - toolbar.offsetHeight - 4}px`;
-      toolbar.style.display = 'flex';
-    };
-
-    const hideToolbar = () => {
-      toolbar.style.display = 'none';
-    };
-
-    doc.body.appendChild(toolbar);
+    doc.body.insertBefore(toolbar, doc.body.firstChild);
+    doc.body.style.paddingTop = '32px';
     // Find all text nodes and make them editable
     const walker = doc.createTreeWalker(
       doc.body,
@@ -143,21 +137,6 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
           span.style.boxShadow = 'none';
         }
       });
-
-      const checkSelection = () => {
-        const sel = doc.getSelection();
-        if (!sel || sel.isCollapsed || !span.contains(sel.anchorNode)) {
-          hideToolbar();
-          return;
-        }
-        const range = sel.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        showToolbar(rect);
-      };
-
-      span.addEventListener('mouseup', checkSelection);
-      span.addEventListener('keyup', checkSelection);
-      span.addEventListener('blur', hideToolbar);
 
       span.addEventListener('focus', () => {
         span.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
