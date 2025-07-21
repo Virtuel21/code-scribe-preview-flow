@@ -231,9 +231,13 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
       }
     };
 
-
     const findLineNumber = (el: HTMLElement): number | null => {
-      const html = el.outerHTML.trim();
+      // Nettoyer le clone pour la recherche dans le code
+      const cleanClone = el.cloneNode(true) as HTMLElement;
+      cleanClone.querySelectorAll('[data-editable="true"]').forEach((span) => {
+        span.replaceWith(span.textContent || '');
+      });
+      const html = cleanClone.outerHTML.trim();
       const index = code.indexOf(html);
       if (index !== -1) {
         return code.slice(0, index).split('\n').length;
@@ -423,4 +427,3 @@ const LivePreview: React.FC<LivePreviewProps> = ({ code, onTextEdit, onElementDe
 };
 
 export default LivePreview;
-
