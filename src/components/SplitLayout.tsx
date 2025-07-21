@@ -65,6 +65,7 @@ const defaultCode = `<!DOCTYPE html>
 
 const SplitLayout: React.FC = () => {
   const [code, setCode] = useState(defaultCode);
+  const [highlightLine, setHighlightLine] = useState<number>();
 
   const handleCodeChange = useCallback((newCode: string) => {
     setCode(newCode);
@@ -79,6 +80,10 @@ const SplitLayout: React.FC = () => {
     setCode(current => current.replace(html, ''));
   }, []);
 
+  const handleElementSelect = useCallback((line: number) => {
+    setHighlightLine(line);
+  }, []);
+
   const handleRun = useCallback(() => {
     // Force refresh by updating code
     setCode(prev => prev);
@@ -88,11 +93,11 @@ const SplitLayout: React.FC = () => {
     <div className="h-screen bg-background text-foreground overflow-hidden">
       <ResizablePanelGroup direction="horizontal" className="h-full">
         <ResizablePanel defaultSize={50} minSize={20} className="overflow-y-auto">
-          <CodeEditor value={code} onChange={handleCodeChange} onRun={handleRun} />
+          <CodeEditor value={code} onChange={handleCodeChange} onRun={handleRun} highlightLine={highlightLine} />
         </ResizablePanel>
         <ResizableHandle withHandle className="bg-border" />
         <ResizablePanel minSize={20} className="overflow-y-auto">
-          <LivePreview code={code} onTextEdit={handleTextEdit} onElementDelete={handleElementDelete} />
+          <LivePreview code={code} onTextEdit={handleTextEdit} onElementDelete={handleElementDelete} onElementSelect={handleElementSelect} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
