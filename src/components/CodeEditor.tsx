@@ -12,9 +12,10 @@ interface CodeEditorProps {
   value: string;
   onChange: (value: string) => void;
   onRun: () => void;
+  highlightLine?: number;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun, highlightLine }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [lineNumbers, setLineNumbers] = useState<number[]>([1]);
 
@@ -22,6 +23,22 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun }) => {
     const lines = value.split('\n').length;
     setLineNumbers(Array.from({ length: lines }, (_, i) => i + 1));
   }, [value]);
+
+  useEffect(() => {
+    if (!highlightLine || !textareaRef.current) return;
+    const lines = value.split('\n');
+    let index = 0;
+    for (let i = 0; i < highlightLine - 1 && i < lines.length; i++) {
+      index += lines[i].length + 1; // newline
+    }
+    const start = index;
+    const end = Math.min(index + (lines[highlightLine - 1]?.length || 0), value.length);
+    const textarea = textareaRef.current;
+    textarea.focus();
+    textarea.setSelectionRange(start, end);
+    const lineEl = document.getElementById(`line-${highlightLine}`);
+    lineEl?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, [highlightLine, value]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Tab') {
@@ -154,7 +171,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ value, onChange, onRun }) => {
           {lineNumbers.map((lineNum) => (
             <div
               key={lineNum}
-              className="text-xs text-text-muted font-mono leading-6 px-2"
+              id={`line-${lineNum}`}
+              className={`text-xs text-text-muted font-mono leading-6 px-2 ${highlightLine === lineNum ? 'bg-accent-primary/20' : ''}`}
             >
               {lineNum}
             </div>
